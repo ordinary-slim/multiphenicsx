@@ -517,7 +517,7 @@ def test_vector_assembly_with_restriction(
     assert_vector_equal(unrestricted_vector_nonlinear, restricted_vector_nonlinear, dofmap_restriction)
     unrestricted_fem_module.petsc.set_bc(unrestricted_vector_nonlinear, bcs, unrestricted_solution)
     restricted_fem_module.petsc.set_bc(
-        restricted_vector_nonlinear, bcs, restricted_solution, restriction=dofmap_restriction)
+        restricted_vector_nonlinear, bcs, restricted_solution, restriction=dofmap_restriction, restriction_x0=dofmap_restriction)
     assert_vector_equal(unrestricted_vector_nonlinear, restricted_vector_nonlinear, dofmap_restriction)
     unrestricted_vector_nonlinear.destroy()
     restricted_vector_nonlinear.destroy()
@@ -697,7 +697,7 @@ def test_nest_vector_assembly_with_restriction(
     unrestricted_fem_module.petsc.set_bc_nest(
         unrestricted_vector_nonlinear, bcs_pair, unrestricted_solution)
     restricted_fem_module.petsc.set_bc_nest(
-        restricted_vector_nonlinear, bcs_pair, restricted_solution, restriction=dofmap_restriction)
+        restricted_vector_nonlinear, bcs_pair, restricted_solution, restriction=dofmap_restriction, restriction_x0=dofmap_restriction)
     assert_vector_equal(unrestricted_vector_nonlinear, restricted_vector_nonlinear, dofmap_restriction)
     unrestricted_vector_nonlinear.destroy()
     restricted_vector_nonlinear.destroy()
