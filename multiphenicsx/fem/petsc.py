@@ -1518,7 +1518,36 @@ def apply_lifting(  # type: ignore[no-any-unimported]
     restriction: typing.Optional[mcpp.fem.DofMapRestriction] = None,
     restriction_x0: typing.Optional[list[mcpp.fem.DofMapRestriction]] = None
 ) -> None:
-    """Apply the function :func:`dolfinx.fem.apply_lifting` to a PETSc Vector."""
+    r"""Apply the function :func:`dolfinx.fem.apply_lifting` to a PETSc Vector.
+
+    For each Dirichet condition *bc* in bcs, it modifies b such that:
+
+    .. math::
+
+        b|_{\partial \Omega_{bc}} \leftarrow  b - \alpha \; A_j ( u_{bc} - x_{0,j} )
+
+    where :math:`u_{bc}` contains the Dirichlet values and *j* is a block (nest) index.
+
+    Parameters
+    ----------
+        b
+            PETSc Vector
+        a
+            Bilinear forms
+        bcs
+            Dirichlet conditions
+        x0
+            PETSc Vectors subtracted to the Dirichlet values.
+            Normally, current non-linear solution in an incremental problem.
+        alpha
+            Scaling factor
+        constants
+            Constants that appear in the forms. If not provided, any required constants will be computed.
+        coeffs
+            Coefficients that appear in the forms. If not provided, any required coefficients will be computed.
+        restriction, restriction_x0
+            Dofmap restrictions. If not provided, the unrestricted vectors will be used.
+    """
     function_spaces = [form.function_spaces[1] for form in a]
     dofmaps_x0 = [function_space.dofmap for function_space in function_spaces]
     with NestVecSubVectorReadWrapper(x0, dofmaps_x0, restriction_x0) as nest_x0:
@@ -1578,11 +1607,11 @@ def set_bc(  # type: ignore[no-any-unimported]
 ) -> None:
     r"""Apply the function :func:`dolfinx.fem.set_bc` to a PETSc Vector.
 
-    For each Dirichet condition in bcs, it modifies b such that:
+    For each Dirichet condition *bc* in bcs, it modifies b such that:
 
     .. math::
 
-        b \\leftarrow  \\alpha (u_{bc} - x_0)
+        b|_{\partial \Omega_{bc}} \leftarrow  \alpha (u_{bc} - x_0)
 
     where :math:`u_{bc}` contains the Dirichlet values.
 
@@ -1594,10 +1623,11 @@ def set_bc(  # type: ignore[no-any-unimported]
             Dirichlet conditions
         x0
             PETSc Vector subtracted to the Dirichlet values.
+            Normally, current non-linear solution in an incremental problem.
         alpha
             Scaling factor
         restriction, restriction_x0
-            Dofmap restrictions for b and x0. If not provided, the unrestricted vectors will be used for each.
+            Dofmap restriction. If not provided, the unrestricted vector will be used.
     """
     if restriction is None:
         if x0 is not None:
@@ -1605,14 +1635,12 @@ def set_bc(  # type: ignore[no-any-unimported]
         for bc in bcs:
             bc.set(b.array_w, x0, alpha)
     else:
-        if (x0 is not None) and (restriction_x0 is None):
-            def x0_wrapper() -> petsc4py.PETSc.Vec:
-                return x0
-        else:
-            if restriction_x0 is None:
-                restriction_x0 = restriction
-            def x0_wrapper() -> np.typing.NDArray[petsc4py.PETSc.ScalarType]:
-                return VecSubVectorReadWrapper(x0, restriction_x0.dofmap, restriction_x0, ghosted=False)
+        def x0_wrapper() -> typing.Union[petsc4py.PETSc.Vec, _VecSubVectorWrapper]:
+            if (x0 is not None) and (restriction_x0 is None):
+                    return x0
+            else:
+                rx0 = restriction_x0 if restriction_x0 is not None else restriction
+                return VecSubVectorReadWrapper(x0, rx0.dofmap, rx0, ghosted=False)
         with VecSubVectorWrapper(b, restriction.dofmap, restriction,
                              ghosted=False) as b_sub, x0_wrapper() as x0_sub:
             for bc in bcs:
