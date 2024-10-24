@@ -17,7 +17,6 @@ import dolfinx.la
 import numpy as np
 import numpy.typing
 import petsc4py.PETSc
-from contextlib import contextmanager
 
 from multiphenicsx.cpp import cpp_library as mcpp
 
@@ -1577,7 +1576,7 @@ def set_bc(  # type: ignore[no-any-unimported]
     restriction: typing.Optional[mcpp.fem.DofMapRestriction] = None,
     restriction_x0: typing.Optional[mcpp.fem.DofMapRestriction] = None,
 ) -> None:
-    """Apply the function :func:`dolfinx.fem.set_bc` to a PETSc Vector:
+    r"""Apply the function :func:`dolfinx.fem.set_bc` to a PETSc Vector.
 
     For each Dirichet condition in bcs, it modifies b such that:
 
@@ -1597,37 +1596,35 @@ def set_bc(  # type: ignore[no-any-unimported]
             PETSc Vector subtracted to the Dirichlet values.
         alpha
             Scaling factor
-        restriction, restriction_x0 
+        restriction, restriction_x0
             Dofmap restrictions for b and x0. If not provided, the unrestricted vectors will be used for each.
     """
-    @contextmanager
-    def x0_wrapper():
-        try:
-            if x0 is None:
-                yield x0
-            elif restriction_x0 is None:
-                yield x0.array_r
-            else:
-                with VecSubVectorReadWrapper(x0, restriction_x0.dofmap, restriction_x0, ghosted=False) as x0_sub:
-                    yield x0_sub
-        finally:
-            pass
     if restriction is None:
-        with x0_wrapper() as x0_view:
-            for bc in bcs:
-                bc.set(b.array_w, x0_view, alpha)
+        if x0 is not None:
+            x0 = x0.array_r
+        for bc in bcs:
+            bc.set(b.array_w, x0, alpha)
     else:
-        with VecSubVectorWrapper(b, restriction.dofmap, restriction, ghosted=False) as b_sub, \
-                x0_wrapper() as x0_view:
-                    for bc in bcs:
-                        bc.set(b_sub, x0_view, alpha)
+        if (x0 is not None) and (restriction_x0 is None):
+            def x0_wrapper() -> petsc4py.PETSc.Vec:
+                return x0
+        else:
+            if restriction_x0 is None:
+                restriction_x0 = restriction
+            def x0_wrapper() -> np.typing.NDArray[petsc4py.PETSc.ScalarType]:
+                return VecSubVectorReadWrapper(x0, restriction_x0.dofmap, restriction_x0, ghosted=False)
+        with VecSubVectorWrapper(b, restriction.dofmap, restriction,
+                             ghosted=False) as b_sub, x0_wrapper() as x0_sub:
+            for bc in bcs:
+                bc.set(b_sub, x0_sub, alpha)
+
 
 def set_bc_nest(  # type: ignore[no-any-unimported]
     b: petsc4py.PETSc.Vec, bcs: list[list[dolfinx.fem.DirichletBC]] = [],
     x0: typing.Optional[petsc4py.PETSc.Vec] = None,
     alpha: float = 1.0,
     restriction: typing.Optional[list[mcpp.fem.DofMapRestriction]] = None,
-    restriction_x0: typing.Optional[list[mcpp.fem.DofMapRestriction]] = None
+    restriction_x0: typing.Optional[list[mcpp.fem.DofMapRestriction]] = None,
 ) -> None:
     """Apply the function :func:`dolfinx.fem.set_bc` to each sub-vector of a nested PETSc Vector."""
     if restriction is None:
