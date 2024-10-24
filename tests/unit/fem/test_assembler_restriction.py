@@ -516,12 +516,16 @@ def test_vector_assembly_with_restriction(
         addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
     assert_vector_equal(unrestricted_vector_nonlinear, restricted_vector_nonlinear, dofmap_restriction)
     unrestricted_fem_module.petsc.set_bc(unrestricted_vector_nonlinear, bcs, unrestricted_solution)
-    restricted_fem_module.petsc.set_bc(
-        restricted_vector_nonlinear, bcs, restricted_solution,
-        restriction=dofmap_restriction, restriction_x0=dofmap_restriction)
-    assert_vector_equal(unrestricted_vector_nonlinear, restricted_vector_nonlinear, dofmap_restriction)
+    restricted_vector_nonlinear_bis = restricted_vector_nonlinear.copy()
+    for b, x0, r0 in zip([restricted_vector_nonlinear, restricted_vector_nonlinear_bis],
+                         [restricted_solution, unrestricted_solution],
+                         [dofmap_restriction, None]):
+        restricted_fem_module.petsc.set_bc(b, bcs, x0,
+            restriction=dofmap_restriction, restriction_x0=r0)
+        assert_vector_equal(unrestricted_vector_nonlinear, b, dofmap_restriction)
     unrestricted_vector_nonlinear.destroy()
     restricted_vector_nonlinear.destroy()
+    restricted_vector_nonlinear_bis.destroy()
     unrestricted_solution.destroy()
     restricted_solution.destroy()
     bc_vector.destroy()
