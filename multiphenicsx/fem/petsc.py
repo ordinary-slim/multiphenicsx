@@ -1635,7 +1635,8 @@ def set_bc(  # type: ignore[no-any-unimported]
         for bc in bcs:
             bc.set(b.array_w, x0, alpha)
     else:
-        def x0_wrapper() -> typing.Union[petsc4py.PETSc.Vec, _VecSubVectorWrapper]:
+        def x0_wrapper() -> typing.Union[  # type: ignore[no-any-unimported]
+                petsc4py.PETSc.Vec, _VecSubVectorWrapper]:
             if (x0 is not None) and (restriction_x0 is None):
                     return x0
             else:
