@@ -13,7 +13,7 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/array.h>
 #include <nanobind/stl/complex.h>
-#include <nanobind/stl/map.h>
+#include <nanobind/stl/unordered_map.h>
 #include <nanobind/stl/pair.h>
 #include <nanobind/stl/vector.h>
 #include <petsc4py/petsc4py.h>
@@ -38,7 +38,7 @@ void la_petsc_module(nb::module_& m)
       .def(nb::init<Mat, std::array<IS, 2>>(), nb::arg("A"),
            nb::arg("index_sets"))
       .def(nb::init<Mat, std::array<IS, 2>, std::array<IS, 2>,
-                    std::array<std::map<std::int32_t, std::int32_t>, 2>,
+                    std::array<std::unordered_map<std::int32_t, std::int32_t>, 2>,
                     std::array<int, 2>>(),
            nb::arg("A"), nb::arg("unrestricted_index_sets"),
            nb::arg("restricted_index_sets"),
@@ -57,7 +57,7 @@ void la_petsc_module(nb::module_& m)
       m, "VecSubVectorReadWrapper")
       .def(nb::init<Vec, IS, bool>(), nb::arg("x"), nb::arg("index_set"),
            nb::arg("ghosted") = true)
-      .def(nb::init<Vec, IS, IS, const std::map<std::int32_t, std::int32_t>&,
+      .def(nb::init<Vec, IS, IS, const std::unordered_map<std::int32_t, std::int32_t>&,
                     int, bool>(),
            nb::arg("x"), nb::arg("unrestricted_index_set"),
            nb::arg("restricted_index_set"),
@@ -78,7 +78,7 @@ void la_petsc_module(nb::module_& m)
       m, "VecSubVectorWrapper")
       .def(nb::init<Vec, IS, bool>(), nb::arg("x"), nb::arg("index_set"),
            nb::arg("ghosted") = true)
-      .def(nb::init<Vec, IS, IS, const std::map<std::int32_t, std::int32_t>&,
+      .def(nb::init<Vec, IS, IS, const std::unordered_map<std::int32_t, std::int32_t>&,
                     int, bool>(),
            nb::arg("x"), nb::arg("unrestricted_index_set"),
            nb::arg("restricted_index_set"),
