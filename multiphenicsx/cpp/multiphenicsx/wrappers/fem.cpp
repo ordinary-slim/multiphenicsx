@@ -210,6 +210,24 @@ void fem(nb::module_& m)
           "restricted_to_unrestricted",
           &multiphenicsx::fem::DofMapRestriction::restricted_to_unrestricted)
       .def(
+          "unrestrict",
+          [](const multiphenicsx::fem::DofMapRestriction& self,
+            nb::ndarray<const std::int32_t, nb::ndim<1>, nb::c_contig> restricted_dofs)
+          {
+            auto unrestricted_dofs = self.unrestrict(std::span<const std::int32_t>(restricted_dofs.data(), restricted_dofs.size()));
+            return nb::ndarray<const std::int32_t, nb::numpy>(unrestricted_dofs.data(),
+                {unrestricted_dofs.size()}).cast();
+          })
+      .def(
+          "restrict",
+          [](const multiphenicsx::fem::DofMapRestriction& self,
+            nb::ndarray<const std::int32_t, nb::ndim<1>, nb::c_contig> unrestricted_dofs)
+          {
+            auto restricted_dofs = self.restrict(std::span<const std::int32_t>(unrestricted_dofs.data(), unrestricted_dofs.size()));
+            return nb::ndarray<const std::int32_t, nb::numpy>(restricted_dofs.data(),
+                {restricted_dofs.size()}).cast();
+          })
+      .def(
           "map",
           [](const multiphenicsx::fem::DofMapRestriction& self)
           {

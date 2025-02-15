@@ -70,6 +70,26 @@ public:
     return _restricted_to_unrestricted;
   }
 
+  std::vector<std::int32_t> restrict(std::span<const std::int32_t> unrestricted_dofs) const
+  {
+    std::vector<std::int32_t> restricted_dofs(unrestricted_dofs.size());
+    std::transform(unrestricted_dofs.begin(), unrestricted_dofs.end(),
+        restricted_dofs.begin(),
+        [map = this->_unrestricted_to_restricted](const auto& dof)
+        {return map.at(dof);});
+    return restricted_dofs;
+  }
+
+  std::vector<std::int32_t> unrestrict(std::span<const std::int32_t> restricted_dofs) const
+  {
+    std::vector<std::int32_t> unrestricted_dofs(restricted_dofs.size());
+    std::transform(restricted_dofs.begin(), restricted_dofs.end(),
+        unrestricted_dofs.begin(),
+        [map = this->_restricted_to_unrestricted](const auto& dof)
+        {return map.at(dof);});
+    return unrestricted_dofs;
+  }
+
   /// Get dofmap data after restriction has been carried out
   /// @return The adjacency list with dof indices for each cell
   std::pair<std::span<const std::int32_t>, std::span<const std::size_t>>
