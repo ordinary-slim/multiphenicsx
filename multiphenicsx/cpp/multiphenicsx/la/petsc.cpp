@@ -348,7 +348,8 @@ VecSubVectorReadWrapper::VecSubVectorReadWrapper(Vec x, IS index_set,
 //-----------------------------------------------------------------------------
 VecSubVectorReadWrapper::VecSubVectorReadWrapper(
     Vec x, IS unrestricted_index_set, IS restricted_index_set,
-    const std::unordered_map<std::int32_t, std::int32_t>& unrestricted_to_restricted,
+    const std::unordered_map<std::int32_t, std::int32_t>&
+        unrestricted_to_restricted,
     int unrestricted_to_restricted_bs, bool ghosted)
     : _ghosted(ghosted)
 {
@@ -446,7 +447,8 @@ VecSubVectorWrapper::VecSubVectorWrapper(Vec x, IS index_set, bool ghosted)
 //-----------------------------------------------------------------------------
 VecSubVectorWrapper::VecSubVectorWrapper(
     Vec x, IS unrestricted_index_set, IS restricted_index_set,
-    const std::unordered_map<std::int32_t, std::int32_t>& unrestricted_to_restricted,
+    const std::unordered_map<std::int32_t, std::int32_t>&
+        unrestricted_to_restricted,
     int unrestricted_to_restricted_bs, bool ghosted)
     : VecSubVectorReadWrapper(x, unrestricted_index_set, restricted_index_set,
                               unrestricted_to_restricted,

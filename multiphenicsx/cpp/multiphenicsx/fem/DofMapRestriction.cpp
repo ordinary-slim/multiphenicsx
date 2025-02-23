@@ -82,8 +82,8 @@ void DofMapRestriction::_compute_cell_dofs(std::shared_ptr<const DofMap> dofmap)
     }
   }
 
-  // Flatten std::unordered_map into the std::vector dof_array, and store start/end
-  // indices associated to each cell in cell_bounds
+  // Flatten std::unordered_map into the std::vector dof_array, and store
+  // start/end indices associated to each cell in cell_bounds
   _dof_array.reserve(restricted_cell_dofs_total_size);
   _cell_bounds.reserve(num_cells + 1);
   std::size_t current_cell_bound = 0;

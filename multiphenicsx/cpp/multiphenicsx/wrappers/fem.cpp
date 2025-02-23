@@ -5,10 +5,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include <array>
-#include <caster_petsc.h>
 #include <dolfinx/common/IndexMap.h>
 #include <dolfinx/fem/DofMap.h>
 #include <dolfinx/fem/Form.h>
+#include <dolfinx_wrappers/caster_petsc.h>
 #include <memory>
 #include <multiphenicsx/fem/DofMapRestriction.h>
 #include <multiphenicsx/fem/petsc.h>
@@ -17,10 +17,10 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/array.h>
 #include <nanobind/stl/complex.h>
-#include <nanobind/stl/unordered_map.h>
 #include <nanobind/stl/pair.h>
 #include <nanobind/stl/shared_ptr.h>
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/unordered_map.h>
 #include <nanobind/stl/vector.h>
 #include <petsc4py/petsc4py.h>
 #include <span>
